@@ -1,12 +1,19 @@
 # p1
-1kb piano music player from a string of notes.
+<1kb piano music player from a string of notes.
 
 There is only 1 function: p1
-You call it without parenthesis.
+You can call it without parenthesis.
 
-EXAMPLE, PLAY JINGLE BELLS:
+FULL EXAMPLE, PLAY JINGLE BELLS:
 ```
-p1`c-c-c---|c-c-c---|c-f-Y--a|c-------|d-d-d--d|d-c-c-cc|f-f-d-a-|Y---f---`
+<html>
+	<body>
+		<script src="p1.js"></script>
+		<button onclick="p1`c-c-c---|c-c-c---|c-f-Y--a|c-------|d-d-d--d|d-c-c-cc|f-f-d-a-|Y---f---`">
+			Jingle Bells ▶
+		</button>
+	</body>
+</html>
 ```
 
 
