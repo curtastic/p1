@@ -56,3 +56,5 @@ How to convert from piano notes to p1 letters:
 C#D#EF#G#A#BC#D#EF#G#A#BC#D#EF#G#A#BC#D#EF#G#A#BC#D#
 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 ```
+
+[conversion table from piano notes to p1 letters](/convert.png)
