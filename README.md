@@ -58,3 +58,8 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 ```
 
 [conversion table from piano notes to p1 letters](/convert.png)
+
+
+CREDITS:
+xem: systhesis and modulation code.
+vertfromage: simplified code and explanation.
