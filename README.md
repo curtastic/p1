@@ -61,5 +61,7 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 
 
 CREDITS:
-xem: systhesis and modulation code.
-vertfromage: simplified code and explanation.
+
+xem: Piano systhesis and modulation code.
+
+vertfromage: Simplified code and explanation.
