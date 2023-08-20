@@ -1,5 +1,5 @@
 # p1
-<1kb piano music player from a string of notes.
+0.8kb piano music player from a string of notes.
 
 There is only 1 function: p1
 You can call it without parenthesis.
