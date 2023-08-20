@@ -16,6 +16,9 @@ FULL EXAMPLE, PLAY JINGLE BELLS:
 </html>
 ```
 
+Try it!
+https://curtastic.com/p1/demo.html
+
 
 TO STOP:
 ```
@@ -41,7 +44,9 @@ M-------R-------`
 ```
 
 Vertical bars are ingored and don't do anything.
+
 Dashes make the note held longer.
+
 Spaces are silent space.
 
 Supports 52 notes (4 octaves)
