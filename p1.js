@@ -35,6 +35,7 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 	var buffers = {},
 		contexts = [...Array(24).keys()].map(_=>new AudioContext),
 		tracks,
+		trackLen,
 		interval,
 		// Modulation. Generates a sample of a sinusoidal signal with a specific frequency and amplitude.
 		b = (note, add) => Math.sin(note*6.28 + add),
@@ -42,25 +43,22 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 		pianoify = (note) => b(note, b(note,0)**2 + b(note,.25)*.75 + b(note,.5)*.1)
 	
 	var makeNote = (note, seconds, sampleRate) => {
-		if(note<0)return 0
 		var key = note+''+seconds
 		var buffer = buffers[key]
 		//console.log("makeNote", note, seconds, buffer)
-		if(!buffer) {
+		if(note>=0 && !buffer) {
 			
 			// Calculate frequency/pitch. "Low C" is 65.406
 			note = 65.406 * 1.06 ** note / sampleRate
 			
-			var sampleTotal = sampleRate * seconds | 0,
+			var i = sampleRate * seconds | 0,
 				sampleRest = sampleRate * (seconds - .002),
-				bufferArray,
-				i
-			buffer = buffers[key] = contexts[0].createBuffer(1, sampleTotal, sampleRate)
+				bufferArray
+			buffer = buffers[key] = contexts[0].createBuffer(1, i, sampleRate)
 			bufferArray = buffer.getChannelData(0)
 			
-			// Loop on all the samples
-			for(i = sampleTotal; i--;) {
-				// Fill the samples array
+			// Fill the samples array
+			for(;i--;) {
 				bufferArray[i] =
 					// The first 88 samples represent the note's attack
 					(i < 88 ?
@@ -74,48 +72,42 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 	}
 	
 	p1 = (params) => {
-		params = params[0].replace(/[\!\|]/g,'').split('\n')
-		tracks = []
 		var tempo = 125
-		for(var track of params) {
-			if(track*1) {
-				tempo = track*1
-			} else {
-				var s = []
-				for(var l=0; l<track.length; l++) {
-					var note = track.charCodeAt(l)
-					if(note > 90) note -= 6
-					note -= 65
-					var duration = 1
-					while(track[l+1]=='-') {
-						l++
-						duration++
-					}
-					s.push(makeNote(note, duration/2*tempo/125, 44100), ...Array(duration-1))
-				}
-				track && tracks.push(s)
+		tracks = params[trackLen = 0].replace(/[\!\|]/g,'').split('\n').map(track => {
+			if(!track) {
+				return 0
 			}
-		}
+			if(track*1) { 
+				tempo = track*1
+				return 0
+			}
+			
+			return track.split('').map((letter, i) => {
+				var duration = 1,
+					note = letter.charCodeAt(0)
+				note -= note>90 ? 71 : 65
+				while(track[i+duration]=='-') {
+					duration++
+				}
+				if(trackLen<i)trackLen=i+1
+				return makeNote(note, duration/2*tempo/125, 44100)
+			})
+		})
 		
 		noteI = 0
 		clearInterval(interval)
-		interval = setInterval(i => {
-			i = noteI++
-			var trackI = 0
-			for(var track of tracks) {
-				var j = i % track.length
-				if(track[j]) {
-					var context = contexts[i%4+trackI*4],
+		interval = setInterval(j => {
+			tracks.map((track,trackI) => {
+				if(track[j = noteI % track.length]) {
+					var context = contexts[noteI%4+trackI*4],
 						source = context.createBufferSource()
 					source.buffer = track[j]
 					source.connect(context.destination)
 					source.start()
 				}
-				trackI++
-			}
-			if(noteI >= tracks[0].length) {
-				noteI = 0
-			}
+			})
+			noteI++
+			noteI %= trackLen
 		}, tempo)
 	}
 }()
