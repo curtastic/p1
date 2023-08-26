@@ -1,5 +1,5 @@
 # p1
-0.8kb piano music player from a string of notes.
+Piano music player from a string of notes. 850 bytes minified.
 
 There is only 1 function: p1
 You can call it without parenthesis.
@@ -42,6 +42,15 @@ p1`70
 V-Y-c-V-d---c-a-
 M-------R-------`
 ```
+
+
+WITH NOTES HELD DOWN LESS LONG = 30 (0 to 100, default is 50):
+```
+p1`70.30
+V-Y-c-V-d---c-a-
+M-------R-------`
+```
+
 
 Vertical bars are ingored and don't do anything.
 
