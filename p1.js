@@ -21,6 +21,11 @@ p1`70
 V-Y-c-V-d---c-a-
 M-------R-------`
 
+WITH NOTES HELD DOWN LESS LONG = 30 (0 to 100, default is 50):
+p1`70.30
+V-Y-c-V-d---c-a-
+M-------R-------`
+
 Vertical bars are ingored and don't do anything.
 Dashes make the note held longer.
 Spaces are silent space.
@@ -33,10 +38,12 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 */
 !function() {
 	var buffers = {},
-		contexts = [...Array(24).keys()].map(_=>new AudioContext),
+		contexts = [...Array(9).keys()].map(_=>new AudioContext),
 		tracks,
 		trackLen,
 		interval,
+		unlocked,
+		noteI,
 		// Modulation. Generates a sample of a sinusoidal signal with a specific frequency and amplitude.
 		b = (note, add) => Math.sin(note*6.28 + add),
 		// Instrument synthesis.
@@ -45,7 +52,6 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 	var makeNote = (note, seconds, sampleRate) => {
 		var key = note+''+seconds
 		var buffer = buffers[key]
-		//console.log("makeNote", note, seconds, buffer)
 		if(note>=0 && !buffer) {
 			
 			// Calculate frequency/pitch. "Low C" is 65.406
@@ -67,43 +73,51 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 						: (1 - (i - 88.2) / sampleRest) ** ((Math.log(1e4 * note) / 2) ** 2)
 					) * pianoify(i * note)
 			}
+			
+			// Safari hack: Play every audioContext then stop them immediately to "unlock" them on ios.
+			if(!unlocked) {
+				contexts.map(context => playBuffer(buffer, context, unlocked=1))
+			}
 		}
 		return buffer
 	}
 	
+	var playBuffer = (buffer, context, stop) => {
+		var source = context.createBufferSource()
+		source.buffer = buffer
+		source.connect(context.destination)
+		source.start()
+		stop && source.stop()
+	}
+	
 	p1 = (params) => {
-		var tempo = 125
-		tracks = params[trackLen = 0].replace(/[\!\|]/g,'').split('\n').map(track => {
-			if(!track) {
-				return 0
-			}
-			if(track*1) { 
-				tempo = track*1
-				return 0
-			}
-			
-			return track.split('').map((letter, i) => {
-				var duration = 1,
-					note = letter.charCodeAt(0)
-				note -= note>90 ? 71 : 65
-				while(track[i+duration]=='-') {
-					duration++
-				}
-				if(trackLen<i)trackLen=i+1
-				return makeNote(note, duration/2*tempo/125, 44100)
-			})
-		})
+		var tempo = 125, noteLen = .5
+		tracks = params[trackLen = 0].replace(/[\!\|]/g,'').split('\n').map(track =>
+			track>0 ?
+				(
+					track = track.split('.'),
+					tempo = track[0],
+					noteLen = track[1]/100 || noteLen
+				)
+			:
+				track.split('').map((letter, i) => {
+					var duration = 1,
+						note = letter.charCodeAt(0)
+					note -= note>90 ? 71 : 65
+					while(track[i+duration]=='-') {
+						duration++
+					}
+					if(trackLen<i)trackLen=i+1
+					return makeNote(note, duration*noteLen*tempo/125, 44100)
+				})
+		)
 		
 		noteI = 0
 		clearInterval(interval)
 		interval = setInterval(j => {
 			tracks.map((track,trackI) => {
 				if(track[j = noteI % track.length]) {
-					var context = contexts[noteI%4+trackI*4],
-						source = context.createBufferSource()
-					source.buffer = track[j]
-					source.connect(context.destination)
-					source.start()
+					playBuffer(track[j], contexts[trackI])
 				}
 			})
 			noteI++
