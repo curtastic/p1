@@ -38,7 +38,7 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 */
 !function() {
 	var buffers = {},
-		contexts = [...Array(9).keys()].map(_=>new AudioContext),
+		contexts = [...Array(12).keys()].map(_=>new AudioContext),
 		tracks,
 		trackLen,
 		interval,
@@ -117,7 +117,7 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 		interval = setInterval(j => {
 			tracks.map((track,trackI) => {
 				if(track[j = noteI % track.length]) {
-					playBuffer(track[j], contexts[trackI])
+					playBuffer(track[j], contexts[trackI*3+noteI%3])
 				}
 			})
 			noteI++
